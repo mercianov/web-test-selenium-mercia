@@ -1,6 +1,6 @@
-# nopcommerce
+# web-test-selenium-mercia
 BDD Selenium Java Cucumber framework for web testing
-- How to run the test project nopCommerceV001_Cucumber from `Features`:
+- How to run the test project `web-test-selenium-mercia` from `Features`:
 1. Open folder `Features` on IDEA
 2. Choose a cucumber feature file and open it
 3. Run on level per scenario for 1 scenario at one time, or 
@@ -11,4 +11,4 @@ BDD Selenium Java Cucumber framework for web testing
 2.  Fill in the tags with scenario tag you wanna run
 3.  Run this file as testNG
 
-It aim for testing demo web `http://admin-demo.nopcommerce.com/login`
+It aims to test the demo web `https://www.saucedemo.com/`
