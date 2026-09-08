@@ -1,31 +1,13 @@
 Feature: Login
 
   @tag1
-  Scenario: Successfull Login with Valid Credentials
-    Given User launch Chrome browser
-    When User open URL "http://admin-demo.nopcommerce.com/login"
-    And User enters email as "admin@yourstore.com" and password as "admin"
-    And Click on login
-    Then Page Title should be "Dashboard / nopCommerce administration"
-    When User click on Log Out button
-    Then Page Title should be "Your store. Login"
-    And close browser
+  Scenario: Login success with valid credentials
+    Given User is on the SauceDemo login page
+    When User logs in with username "standard_user" and password "secret_sauce"
+    Then User should see the products page
 
   @tag2
-  Scenario Outline: Login Data Driven
-    Given User launch Chrome browser
-    When User open URL "http://admin-demo.nopcommerce.com/login"
-    And User enters email as "<email>" and password as "<password>"
-    And Click on login
-    Then Page Title should be "<status login>"
-
-    Examples:
-    |email|password|status login|
-    |admin@yourstore.com|admin|Dashboard / nopCommerce administration|
-    |admin1@yourstore.com|admin|Your store. Login                    |
-
-    @tag3
-    Scenario: User view login page
-      Given User launch Chrome browser
-      When User open URL "http://admin-demo.nopcommerce.com/login"
-      Then User is on login page
+  Scenario: Login fail with invalid credentials
+    Given User is on the SauceDemo login page
+    When User logs in with username "invalid_user" and password "wrong_password"
+    Then User should see an error message "Epic sadface: Username and password do not match any user in this service"

@@ -1,12 +1,13 @@
-Feature: View Product Catalog
+Feature: View Products
 
-  @tag122
-  Scenario: View product catalog
-    Given User launch Chrome browser
-    And User open URL "http://admin-demo.nopcommerce.com/login"
-    And User enters email as "admin@yourstore.com" and password as "admin"
-    And Click on login
-    When User click on catalog menu
-    And User click on products menu item
-    Then User is on product page
+  Background:
+    Given User is logged in as "standard_user"
 
+  @tag1
+  Scenario: View product list
+    Then User should see 6 products listed
+
+  @tag2
+  Scenario: View product details
+    When User clicks on the product "Sauce Labs Backpack"
+    Then User should see the product details page for "Sauce Labs Backpack"

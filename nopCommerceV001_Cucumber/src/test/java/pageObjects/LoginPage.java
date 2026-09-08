@@ -1,66 +1,39 @@
 package pageObjects;
 
-import com.applitools.eyes.MatchLevel;
-import com.applitools.eyes.selenium.Eyes;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import utilities.commonUtil;
 
-import java.util.List;
-
-import static utilities.commonUtil.enterText;
-import static utilities.commonUtil.compareScreenshootImage;
+import static utilities.commonUtil.waitForElement;
 
 public class LoginPage {
-	public WebDriver ldriver;
-	
-	public LoginPage(WebDriver rdriver) {
-		ldriver = rdriver;
-		PageFactory.initElements(rdriver, this);
-	}
-	
-	@FindBy(id="Email")
-	@CacheLookup
-	WebElement txtEmail;
-	
-	@FindBy(id="Password")
-	@CacheLookup
-	WebElement txtPassword;
-	
-	@FindBy(xpath="//button[@type='submit']")
-	@CacheLookup
-	WebElement btnLogin;
-	
-	@FindBy(xpath="//a[normalize-space()='Logout']")
-	WebElement buttonLogout;
-	public static commonUtil cu;
-	
-	public void setUserEmail(String uname) {
-		enterText(By.xpath("//input[@id='Email']"),uname,ldriver);
-	}
-	public void setPassword(String pwd) {
-		txtPassword.clear();
-		txtPassword.sendKeys(pwd);
-	}
-	public void clickLogin() {
-		btnLogin.click();
-	}
-	
-	public void clickLogout() {
+    private static final String URL = "https://www.saucedemo.com/";
 
-		JavascriptExecutor js = (JavascriptExecutor) ldriver;
-		js.executeScript("arguments[0].click();",ldriver.findElement(By.xpath("//a[normalize-space()='Logout']")));
-	}
+    private static final By USERNAME = By.id("user-name");
+    private static final By PASSWORD = By.id("password");
+    private static final By LOGIN_BUTTON = By.id("login-button");
+    private static final By ERROR_MESSAGE = By.cssSelector("[data-test='error']");
 
-	public void isOnLoginPage() {
-		String appName = "https://admin-demo.nopcommerce.com/login";
-		String testName = "Admin area demo";
-		String appUrl = "http://admin-demo.nopcommerce.com/login";
-		compareScreenshootImage(ldriver, appName, testName, appUrl);
-	}
+    private final WebDriver driver;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void open() {
+        driver.get(URL);
+        waitForElement(driver, USERNAME);
+    }
+
+    public void login(String username, String password) {
+        driver.findElement(USERNAME).clear();
+        driver.findElement(USERNAME).sendKeys(username);
+        driver.findElement(PASSWORD).clear();
+        driver.findElement(PASSWORD).sendKeys(password);
+        driver.findElement(LOGIN_BUTTON).click();
+    }
+
+    public String getErrorMessage() {
+        waitForElement(driver, ERROR_MESSAGE);
+        return driver.findElement(ERROR_MESSAGE).getText();
+    }
 }
