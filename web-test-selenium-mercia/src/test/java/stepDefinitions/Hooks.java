@@ -4,6 +4,8 @@ import driver.DriverManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Scenario;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 
 public class Hooks {
 
@@ -19,10 +21,28 @@ public class Hooks {
         if (driver == null) {
             return;
         }
-        System.out.println("DEBUG [" + scenario.getName() + "] current URL: " + driver.getCurrentUrl());
+        String prefix = "DEBUG [" + scenario.getName() + "] ";
+        System.out.println(prefix + "current URL: " + driver.getCurrentUrl());
         String source = driver.getPageSource();
-        System.out.println("DEBUG [" + scenario.getName() + "] page source (first 2000 chars):");
-        System.out.println(source.substring(0, Math.min(2000, source.length())));
+        System.out.println(prefix + "page source length: " + source.length());
+        System.out.println(prefix + "contains 'checkout': " + source.contains("checkout"));
+        System.out.println(prefix + "contains 'cart_list': " + source.contains("cart_list"));
+        int idx = source.indexOf("cart_contents_container");
+        if (idx < 0) {
+            idx = source.indexOf("cart_list");
+        }
+        if (idx >= 0) {
+            int end = Math.min(source.length(), idx + 3000);
+            System.out.println(prefix + "page source around cart contents:");
+            System.out.println(source.substring(idx, end));
+        }
+        try {
+            for (LogEntry entry : driver.manage().logs().get(LogType.BROWSER)) {
+                System.out.println(prefix + "console: " + entry);
+            }
+        } catch (Exception e) {
+            System.out.println(prefix + "could not read browser console logs: " + e);
+        }
     }
 
     // Closes the shared browser after every scenario so a dangling
