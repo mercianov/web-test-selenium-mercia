@@ -29,6 +29,7 @@ public class ProductsPage {
     }
 
     public int getProductCount() {
+        waitForElement(driver, INVENTORY_ITEM);
         return driver.findElements(INVENTORY_ITEM).size();
     }
 
@@ -51,6 +52,7 @@ public class ProductsPage {
     }
 
     private WebElement findProductItem(String productName) {
+        waitForElement(driver, INVENTORY_ITEM);
         return driver.findElements(INVENTORY_ITEM).stream()
                 .filter(item -> item.findElement(ITEM_NAME).getText().equals(productName))
                 .findFirst()

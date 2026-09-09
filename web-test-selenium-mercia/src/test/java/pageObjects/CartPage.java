@@ -7,6 +7,8 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static utilities.commonUtil.waitForElement;
+
 public class CartPage {
     private static final By CART_ITEM = By.className("cart_item");
     private static final By ITEM_NAME = By.className("inventory_item_name");
@@ -20,6 +22,7 @@ public class CartPage {
     }
 
     public List<WebElement> getCartItems() {
+        waitForElement(driver, CHECKOUT_BUTTON);
         return driver.findElements(CART_ITEM);
     }
 
@@ -42,6 +45,7 @@ public class CartPage {
     }
 
     public void checkout() {
+        waitForElement(driver, CHECKOUT_BUTTON);
         driver.findElement(CHECKOUT_BUTTON).click();
     }
 }
