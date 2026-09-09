@@ -1,6 +1,7 @@
 package pageObjects;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -48,7 +49,11 @@ public class ProductsPage {
 
     public void openCart() {
         waitForElement(driver, CART_LINK);
-        driver.findElement(CART_LINK).click();
+        WebElement cartLink = driver.findElement(CART_LINK);
+        // A native coordinate-based click on this link is unreliable under
+        // headless Chrome (it sometimes never triggers the SPA navigation);
+        // dispatching the click via JS hits the element's handler directly.
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", cartLink);
     }
 
     private WebElement findProductItem(String productName) {
