@@ -7,6 +7,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 
 import java.time.Duration;
+import java.util.function.BooleanSupplier;
 
 public class commonUtil {
 
@@ -16,5 +17,13 @@ public class commonUtil {
                 .pollingEvery(Duration.ofMillis(500))
                 .ignoring(NoSuchElementException.class);
         wait.until(ExpectedConditions.visibilityOfElementLocated(elementLocator));
+    }
+
+    public static void waitUntil(WebDriver driver, BooleanSupplier condition) {
+        FluentWait<WebDriver> wait = new FluentWait<>(driver)
+                .withTimeout(Duration.ofSeconds(30))
+                .pollingEvery(Duration.ofMillis(500))
+                .ignoring(NoSuchElementException.class);
+        wait.until(d -> condition.getAsBoolean());
     }
 }

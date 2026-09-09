@@ -20,6 +20,7 @@ public class CheckoutPage {
     }
 
     public void fillCheckoutInfo(String firstName, String lastName, String postalCode) {
+        waitForElement(driver, FIRST_NAME);
         driver.findElement(FIRST_NAME).sendKeys(firstName);
         driver.findElement(LAST_NAME).sendKeys(lastName);
         driver.findElement(POSTAL_CODE).sendKeys(postalCode);
@@ -27,6 +28,7 @@ public class CheckoutPage {
     }
 
     public void finishCheckout() {
+        waitForElement(driver, FINISH_BUTTON);
         driver.findElement(FINISH_BUTTON).click();
     }
 

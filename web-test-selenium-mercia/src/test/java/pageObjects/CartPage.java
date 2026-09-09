@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static utilities.commonUtil.waitForElement;
+import static utilities.commonUtil.waitUntil;
 
 public class CartPage {
     private static final By CART_ITEM = By.className("cart_item");
@@ -42,6 +43,7 @@ public class CartPage {
                 .orElseThrow(() -> new NoSuchElementException("Product not in cart: " + productName))
                 .findElement(REMOVE_BUTTON)
                 .click();
+        waitUntil(driver, () -> !containsProduct(productName));
     }
 
     public void checkout() {
