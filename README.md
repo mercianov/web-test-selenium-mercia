@@ -6,7 +6,7 @@ A BDD web-testing framework built with **Selenium WebDriver**, **Cucumber**, and
 
 | Component | Version | Purpose |
 |---|---|---|
-| Java | 8 | Language runtime (see `maven-compiler-plugin` config in `pom.xml`) |
+| Java | 11+ to build, bytecode target 8 | Selenium 4.15's classes require a JDK 11+ compiler even though `maven-compiler-plugin` targets Java 8 bytecode |
 | Maven | - | Build and dependency management |
 | Selenium Java | 4.15.0 | Browser automation (drivers are resolved automatically by Selenium Manager, no manual ChromeDriver download needed) |
 | Cucumber (core/java/junit) | 7.14.1 | BDD Gherkin runner and step glue |
@@ -14,6 +14,8 @@ A BDD web-testing framework built with **Selenium WebDriver**, **Cucumber**, and
 | cucumber-reporting | 5.7.7 | HTML test reports |
 
 ## Project structure
+
+The Maven project lives in `web-test-selenium-mercia/`; a `.github/workflows/ci.yml` sits at the repo root alongside it (see [Continuous Integration](#continuous-integration) below).
 
 ```
 web-test-selenium-mercia/
@@ -50,7 +52,7 @@ web-test-selenium-mercia/
 
 1. **Feature files** (`Features/*.feature`) describe scenarios in Gherkin (`Given/When/Then`), tagged with `@tag1`, `@tag2`, etc. for selective execution.
 2. **Step definitions** (`stepDefinitions/*.java`) implement each Gherkin step. They don't talk to Selenium directly — they call methods on page objects fetched from `PageContainer.INSTANCE`.
-3. **`DriverManager`** is an enum singleton that lazily creates a single `ChromeDriver` instance shared by the whole scenario, because Cucumber-Java instantiates a *new* glue object per step definition class per scenario — a driver field on one step class would otherwise be invisible to another.
+3. **`DriverManager`** is an enum singleton that lazily creates a single `ChromeDriver` instance shared by the whole scenario, because Cucumber-Java instantiates a *new* glue object per step definition class per scenario — a driver field on one step class would otherwise be invisible to another. It runs Chrome headed locally, but switches to `--headless=new` automatically when the `CI` environment variable is set (GitHub Actions sets this by default).
 4. **`PageContainer`** is the same singleton pattern applied to page objects: it is initialized once per scenario (from `loginStepDefinition`) with the shared driver, so every step definition class sees the same `LoginPage`, `ProductsPage`, `CartPage`, etc.
 5. **Page objects** (`pageObjects/*Page.java`) encapsulate locators (`By`) and user actions for one screen, using `commonUtil.waitForElement` for explicit waits.
 6. **`Hooks.java`** runs after every scenario (`@After`) and quits the shared driver, so no browser window leaks into the next scenario.
@@ -58,7 +60,7 @@ web-test-selenium-mercia/
 
 ## Prerequisites
 
-- JDK 8+ installed and on your `PATH`
+- JDK 11+ installed and on your `PATH` (Selenium 4.15's classes need a JDK 11+ compiler, even though the project's bytecode target is Java 8)
 - Maven (or use IntelliJ IDEA's bundled Maven)
 - Google Chrome installed (the framework drives Chrome via `ChromeDriver`; Selenium 4's built-in Selenium Manager downloads the matching driver automatically — no manual setup required)
 
@@ -86,7 +88,23 @@ mvn test
 
 This compiles the project and runs `TestRun`, which in turn executes every `.feature` file under `Features/` and writes the HTML report to `target/cucumber-reports.html`.
 
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs the whole suite on every push and pull request to `main`:
+
+1. **Checkout + JDK 11** via `actions/setup-java`, with Maven dependencies cached.
+2. **`mvn -B test`** — `DriverManager` detects the `CI` environment variable (set automatically by GitHub Actions) and launches Chrome with `--headless=new` instead of a headed window, so no virtual display (Xvfb) is needed.
+3. **Retry on failure** — `pom.xml`'s `maven-surefire-plugin` is configured with `rerunFailingTestsCount=2`, since the suite drives the live `saucedemo.com` site and an occasional page transition can lag past the explicit-wait timeout; only the scenarios that failed are rerun, up to twice.
+4. **Report artifact** — `target/cucumber-reports.html` is uploaded as a build artifact (`cucumber-report`) regardless of the outcome, viewable from the run's Summary page on GitHub.
+
+To check on a run from the command line:
+
+```bash
+gh run list --repo mercianov/web-test-selenium-mercia --limit 5
+gh run view <run-id> --repo mercianov/web-test-selenium-mercia --log-failed
+```
+
 ## Notes
 
-- Chrome runs in a normal (non-headless) window by default, since `DriverManager` creates a plain `new ChromeDriver()`.
+- Chrome runs in a normal (non-headless) window locally by default; CI runs it headless (see above).
 - Test data (e.g. `standard_user` / `secret_sauce`) is inline in the feature files, matching SauceDemo's publicly documented demo accounts.
