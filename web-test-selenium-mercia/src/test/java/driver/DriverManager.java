@@ -2,6 +2,7 @@ package driver;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 /**
  * Single shared WebDriver instance for the whole test run.
@@ -18,7 +19,12 @@ public enum DriverManager {
 
     public void setupDriver() {
         if (driver == null) {
-            driver = new ChromeDriver();
+            ChromeOptions options = new ChromeOptions();
+            // CI runners are slower/headless-only; GitHub Actions sets CI=true by default.
+            if (Boolean.parseBoolean(System.getenv("CI"))) {
+                options.addArguments("--headless=new", "--disable-gpu", "--window-size=1920,1080");
+            }
+            driver = new ChromeDriver(options);
         }
     }
 
